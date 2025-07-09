@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Find My Mentor</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f4f4f4;
+      padding: 20px;
+      margin: 0;
+    }
+    .container {
+      max-width: 500px;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      margin: auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h2 {
+      text-align: center;
+      margin-top: 0;
+    }
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+    input[type="text"], button {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      margin-top: 10px;
+      box-sizing: border-box;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    .mentor-card {
+      margin-top: 20px;
+      background: #e6ffe6;
+      padding: 15px;
+      border-radius: 8px;
+    }
+    .actions a {
+      display: inline-block;
+      margin-right: 10px;
+      padding: 10px 15px;
+      text-decoration: none;
+      background: #28a745;
+      color: white;
+      border-radius: 5px;
+    }
+    .actions a.whatsapp {
+      background: #25D366;
+    }
+    .error {
+      color: red;
+      margin-top: 15px;
+    }
+    .form-link {
+      margin-top: 10px;
+      display: block;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h2>Find My Mentor</h2>
+  <label for="enrollInput">Enrollment Number (e.g., 25UG100703 or 25PG100074)</label>
+  <input type="text" id="enrollInput" placeholder="Enter your enrollment number like 25UG100703 or 25PG100074" />
+  <button onclick="findMentor()">Search</button>
+  <div id="result"></div>
+</div>
+
+<script>
+  function findMentor() {
+    const enroll = document.getElementById("enrollInput").value.trim();
+    const resultDiv = document.getElementById("result");
+    resultDiv.innerHTML = "<p>Checking...</p>";
+
+    if (!enroll) {
+      resultDiv.innerHTML = "<p class='error'>Please enter enrollment number.</p>";
+      return;
+    }
+
+    const url = `https://script.google.com/macros/s/AKfycbxPIJByjIao19lrpX6Kq39dp8EYv-RWArcjjrAHnqE5Hjg5KrM2i8toJ5Y63jeEVMt65w/exec?enroll=${encodeURIComponent(enroll)}`;
+
+    fetch(url)
+      .then(res => res.json())
+      .then(data => {
+        if (data.found) {
+          resultDiv.innerHTML = `
+            <div class="mentor-card">
+              <p><strong>Name:</strong> ${data.mentor_name}</p>
+              <p><strong>Contact:</strong> ${data.contact}</p>
+              <p><strong>Email:</strong> ${data.email}</p>
+              <p><strong>Room No:</strong> ${data.room}</p>
+              <div class="actions">
+                <a href="tel:${data.contact}">Call</a>
+                <a class="whatsapp" href="https://wa.me/91${data.contact}" target="_blank">WhatsApp</a>
+              </div>
+            </div>
+          `;
+        } else {
+          resultDiv.innerHTML = `
+            <p class="error">${data.message}</p>
+            <a class="form-link" href="https://forms.gle/KAMaGKthXgm5Bc5E7" target="_blank">
+              Click here to fill the form if your mentor is not found
+            </a>
+          `;
+        }
+      })
+      .catch(error => {
+        console.error(error);
+        resultDiv.innerHTML = "<p class='error'>Something went wrong. Please try again.</p>";
+      });
+  }
+</script>
+
+</body>
+</html>
